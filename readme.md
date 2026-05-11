@@ -80,9 +80,8 @@ Plaintext
 ├── main.py             # Interactive Entry Point
 └── .env                # API Credentials
 
-<p align="center">
-  <img src="assests/architecture_diagram.png" alt="System Architecture" width="600">
-</p>
+<img width="564" height="569" alt="WhatsApp Image 2026-05-11 at 1 26 05 PM" src="https://github.com/user-attachments/assets/b566e3de-1ede-431b-8c53-624c24771f38" />
+
 
 Developed by Tushar Sharma
 ```
