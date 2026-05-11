@@ -28,6 +28,12 @@ class RAGEngine:
         # 2. Search FAISS
         results = self.vector_store.search(query_vector, top_k=top_k)
         return results
+    
+    async def query(self, text: str, strategy: str = "A") -> list:
+        """Routes query to the correct strategy."""
+        if strategy == "B":
+            return await self.strategy_b_hyde_search(text)
+        return await self.strategy_a_direct_search(text)
 
     async def strategy_b_hyde_search(self, query: str, top_k: int = 3) -> List[Dict]:
         """

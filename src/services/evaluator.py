@@ -1,5 +1,4 @@
 import time
-import json
 import logging
 from typing import List, Dict
 from src.core.engine import RAGEngine
@@ -10,42 +9,54 @@ class RetrievalEvaluator:
     def __init__(self, engine: RAGEngine):
         self.engine = engine
 
-    async def compare_strategies(self, query: str) -> Dict:
-        """Runs both strategies for a query and records metrics."""
+    async def compare_strategies(self, query: str) -> dict:
+        """Runs both strategies and returns a consistent nested dictionary."""
         
-        # --- Strategy A ---
-        start_a = time.perf_counter()
-        results_a = await self.engine.strategy_a_direct_search(query)
-        latency_a = (time.perf_counter() - start_a) * 1000
+        # 1. Execute Strategy A
+        start_a = time.time()
+        results_a = await self.engine.query(query, strategy="A")
+        latency_a = (time.time() - start_a) * 1000
+        
+        # 2. Execute Strategy B
+        start_b = time.time()
+        results_b = await self.engine.query(query, strategy="B")
+        latency_b = (time.time() - start_b) * 1000
+        
+        # Helper to safely get top text
+        def get_text(res):
+            return res[0].get('text', "No text found") if res else "N/A"
 
-        # --- Strategy B ---
-        start_b = time.perf_counter()
-        results_b = await self.engine.strategy_b_hyde_search(query)
-        latency_b = (time.perf_counter() - start_b) * 1000
+        # Helper to safely get avg score
+        def get_score(res):
+            if not res: return 0.0
+            return sum(r.get('score', 0) for r in res) / len(res)
 
+        # THIS IS THE STRUCTURE main.py EXPECTS
         return {
             "query": query,
             "strategy_a": {
-                "results": [r['content'][:200] + "..." for r in results_a],
-                "avg_score": sum(r['score'] for r in results_a) / len(results_a) if results_a else 0,
-                "latency_ms": latency_a
+                "latency_ms": latency_a,
+                "avg_score": get_score(results_a),
+                "results": [get_text(results_a)]
             },
             "strategy_b": {
-                "results": [r['content'][:200] + "..." for r in results_b],
-                "avg_score": sum(r['score'] for r in results_b) / len(results_b) if results_b else 0,
-                "latency_ms": latency_b
+                "latency_ms": latency_b,
+                "avg_score": get_score(results_b),
+                "results": [get_text(results_b)]
             }
         }
 
     def generate_markdown_report(self, all_metrics: List[Dict]):
-        """Formats the metrics into the retrieval_benchmark.md file."""
+        """Generates the benchmark report from the session metrics."""
         report = "# RAG Retrieval Benchmark: Strategy A vs Strategy B\n\n"
         report += "## Executive Summary\n"
         report += "- **Strategy A**: Traditional Embedding Similarity\n"
         report += "- **Strategy B**: AI-Enhanced Retrieval (HyDE Expansion)\n\n"
         
         for m in all_metrics:
-            report += f"### Query: \"{m['query']}\"\n"
+            # Ensure we are accessing the nested structure correctly
+            query_text = m.get('query', 'Unknown Query')
+            report += f"### Query: \"{query_text}\"\n"
             report += "| Metric | Strategy A (Raw) | Strategy B (AI-Enhanced) |\n"
             report += "| :--- | :--- | :--- |\n"
             report += f"| **Latency** | {m['strategy_a']['latency_ms']:.2f}ms | {m['strategy_b']['latency_ms']:.2f}ms |\n"
@@ -55,6 +66,6 @@ class RetrievalEvaluator:
             report += "**Top Result B:**\n> " + m['strategy_b']['results'][0] + "\n\n"
             report += "---\n"
             
-        with open("retrieval_benchmark.md", "w") as f:
+        with open("retrieval_benchmark.md", "w", encoding="utf-8") as f:
             f.write(report)
         logger.info("✅ Benchmark report generated: retrieval_benchmark.md")

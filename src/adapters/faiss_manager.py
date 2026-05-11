@@ -31,8 +31,7 @@ class FAISSManager(BaseVectorStore):
     def _create_new_index(self):
         """Creates a new HNSW index optimized for Cosine Similarity."""
         logger.info("Creating new FAISS HNSW index...")
-        # M=32 is the number of bi-directional links created for every new element.
-        # It's a great balance between memory consumption and search speed.
+        # M=32 is the number of links; METRIC_INNER_PRODUCT + L2 Norm = Cosine Similarity
         self.index = faiss.IndexHNSWFlat(self.embedding_dim, 32, faiss.METRIC_INNER_PRODUCT)
         
         # Ensure the storage directory exists
@@ -53,7 +52,7 @@ class FAISSManager(BaseVectorStore):
         return np_vectors
 
     def add_vectors(self, vectors: List[List[float]], metadata: List[Dict]):
-        """Normalizes and adds vectors to the index, then persists to disk."""
+        """Normalizes and adds vectors to the index."""
         if not vectors:
             return
 
@@ -70,14 +69,17 @@ class FAISSManager(BaseVectorStore):
         for i, meta in enumerate(metadata):
             self.metadata[start_id + i] = meta
             
-        self._save_index()
         logger.info(f"Added {len(vectors)} vectors. Total vectors: {self.index.ntotal}")
 
-    def _save_index(self):
-        """Persists the index and metadata to disk."""
+    def save(self):
+        """
+        Public method to persist the index and metadata to disk.
+        Renamed from _save_index to resolve Pylance attribute issues.
+        """
         faiss.write_index(self.index, self.index_path)
         with open(self.metadata_path, 'wb') as f:
             pickle.dump(self.metadata, f)
+        logger.info(f"✅ Index persisted to {self.index_path}")
 
     def search(self, query_vector: List[float], top_k: int = 3) -> List[Dict]:
         """Searches the index for the most similar vectors."""
