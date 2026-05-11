@@ -25,6 +25,20 @@ PDF Parsing: PyPDF
 
 Schema Validation: Pydantic V2
 
+## 📂 Project Structure
+```Plaintext
+├── src/
+│   ├── adapters/       # FAISS & API Mocks
+│   ├── core/           # RAG Logic & Engine
+│   ├── services/       # Ingestion & Evaluation
+│   └── utils/          # PDF Loading & Cleaning
+├── data/
+│   └── storage/        # Persistent FAISS Index
+├── tests/              # Pytest Unit Tests
+├── main.py             # Interactive Entry Point
+└── .env                # API Credentials
+```
+
 ## 📦 Installation & Setup
 **1. Clone and Navigate**
 ```PowerShell
@@ -77,19 +91,6 @@ The engine compares two distinct approaches to retrieval:
 
 Detailed results are saved to retrieval_benchmark.md after each session.
 
-## 📂 Project Structure
-```Plaintext
-├── src/
-│   ├── adapters/       # FAISS & API Mocks
-│   ├── core/           # RAG Logic & Engine
-│   ├── services/       # Ingestion & Evaluation
-│   └── utils/          # PDF Loading & Cleaning
-├── data/
-│   └── storage/        # Persistent FAISS Index
-├── tests/              # Pytest Unit Tests
-├── main.py             # Interactive Entry Point
-└── .env                # API Credentials
-```
 # Final Analysis: The Benchmarking Verdict 
 These results provide a textbook demonstration of the trade-offs between Keyword-Dense Retrieval and Semantic Expansion. By comparing these two queries, we can see exactly where Strategy B (HyDE) justifies its "latency tax" and where Strategy A (Traditional) remains the efficiency king.
 ### 1. The "Keyword Overlap" Effect (Query 1)
