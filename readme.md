@@ -79,5 +79,10 @@ Plaintext
 ├── tests/              # Pytest Unit Tests
 ├── main.py             # Interactive Entry Point
 └── .env                # API Credentials
+
+<p align="center">
+  <img src="assets/architecture_diagram.png" alt="System Architecture" width="600">
+</p>
+
 Developed by Tushar Sharma
 ```
