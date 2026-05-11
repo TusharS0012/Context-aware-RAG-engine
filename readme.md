@@ -81,7 +81,7 @@ Plaintext
 └── .env                # API Credentials
 
 <p align="center">
-  <img src="assets/architecture_diagram.png" alt="System Architecture" width="600">
+  <img src="assets/diagram-export-5-12-2026-2_40_47-AM.png" alt="System Architecture" width="600">
 </p>
 
 Developed by Tushar Sharma
